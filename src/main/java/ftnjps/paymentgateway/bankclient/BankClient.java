@@ -47,7 +47,7 @@ public class BankClient {
 	 *
 	 * If client is not a merchant, this should be set to null
 	 */
-	@Pattern(regexp = "\\w{30}")
+	@Pattern(regexp = "\\w{1,30}")
 	private String merchantId;
 
 	/*

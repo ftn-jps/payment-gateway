@@ -25,7 +25,7 @@ public class Transaction {
 	@Positive
 	private double amount;
 
-	@Pattern(regexp = "\\w{30}")
+	@Pattern(regexp = "\\w{1,30}")
 	@NotBlank
 	private String merchantId;
 
