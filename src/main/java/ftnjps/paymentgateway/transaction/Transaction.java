@@ -1,6 +1,7 @@
 package ftnjps.paymentgateway.transaction;
 
 import java.util.Date;
+import java.util.UUID;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -22,6 +23,9 @@ public class Transaction {
 	@JsonProperty(access = Access.READ_ONLY)
 	private Long id;
 
+	@JsonProperty(access = Access.READ_ONLY)
+	private String token = UUID.randomUUID().toString();
+
 	@Positive
 	private double amount;
 
@@ -36,7 +40,6 @@ public class Transaction {
 	@Positive
 	private int merchantOrderId;
 
-	@Positive
 	@JsonProperty(access = Access.READ_ONLY)
 	private long merchantOrderTimestamp;
 
@@ -69,6 +72,14 @@ public class Transaction {
 	public void setId(Long id) {
 		this.id = id;
 	}
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
 	public double getAmount() {
 		return amount;
 	}
