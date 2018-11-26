@@ -1,6 +1,6 @@
 package ftnjps.paymentgateway.transaction;
 
-import java.util.HashMap;
+import java.net.URI;
 
 import javax.validation.Valid;
 
@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,20 +27,23 @@ public class TransactionController {
 	private TransactionService transactionService;
 	@Autowired
 	private MerchantService merchantService;
+	@Autowired
+	RestTemplate restClient;
+
 	@Value("${server.port}")
 	private int port;
 
 	@PostMapping
 	public ResponseEntity<?> startTransaction(@RequestBody @Valid Transaction transaction) {
-		transactionService.add(transaction);
+		Transaction newTransaction = transactionService.add(transaction);
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Location",
-				"https://localhost:" + port + "/#/transaction/" + transaction.getToken());
-		return new ResponseEntity<>(headers, HttpStatus.SEE_OTHER);
+				"https://localhost:" + port + "/#/transaction/" + newTransaction.getToken());
+		return new ResponseEntity<>(headers, HttpStatus.FOUND);
 	}
 
-	@PostMapping("/{token}/type/{paymentType}")
+	@GetMapping("/{token}/type/{paymentType}")
 	public ResponseEntity<?> forwardTransaction(
 			@PathVariable String token,
 			@PathVariable PaymentType paymentType) {
@@ -52,10 +56,10 @@ public class TransactionController {
 		String bankUrl = merchantService
 				.findByMerchantId(transaction.getMerchantId())
 				.getBankUrl();
-		RestTemplate rest = new RestTemplate();
-		@SuppressWarnings("unchecked")
-		HashMap<String, String> response = rest.getForObject(bankUrl, HashMap.class);
-		String paymentUrl = response.get("paymentUrl");
+		URI response = restClient.postForLocation(
+				bankUrl + "/api/transactions",
+				transaction);
+		String paymentUrl = response.toString();
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Location",
