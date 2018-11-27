@@ -30,7 +30,7 @@ public class TransactionController {
 	@Autowired
 	RestTemplate restClient;
 
-	@Value("${server.port}")
+	@Value("${frontend.port}")
 	private int port;
 
 	@PostMapping
@@ -64,6 +64,6 @@ public class TransactionController {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Location",
 				paymentUrl);
-		return new ResponseEntity<>(headers, HttpStatus.SEE_OTHER);
+		return new ResponseEntity<>(headers, HttpStatus.FOUND);
 	}
 }
