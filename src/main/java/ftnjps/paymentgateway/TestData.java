@@ -22,8 +22,8 @@ public class TestData {
 	private void init() {
 		Merchant m1 = new Merchant("test", "https://localhost:8085");
 		merchantService.add(m1);
-
-		Transaction t1 = new Transaction(5000,
+		// payment of BITCOINS is in $, so the amount needs to be low, bcs there is a limited amount of them in the virtual wallet
+		Transaction t1 = new Transaction(1,
 				"test",
 				"testtest",
 				14,
