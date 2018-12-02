@@ -4,6 +4,14 @@ import java.net.URI;
 
 import javax.validation.Valid;
 
+import com.jayway.jsonpath.JsonPath;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -52,6 +60,39 @@ public class TransactionController {
 			@PathVariable String token,
 			@PathVariable PaymentType paymentType) {
 		Transaction transaction = transactionService.findByToken(token);
+
+		if(paymentType == PaymentType.PAYPAL) {
+			String url = "https://api.sandbox.paypal.com/v1/payments/payment";
+
+			try {
+
+				//TODO: popuniti ovaj payload sa pravim vrednostima. Jebiga sto je ruzno
+				String payload = "{\"intent\": \"sale\",\"redirect_urls\": {\"return_url\": \"https://example.com/your_redirect_url.html\"," +
+						"\"cancel_url\": \"https://example.com/your_cancel_url.html\"},\"payer\": {\"payment_method\": \"paypal\"},\"transactions\": " +
+						"[{\"amount\": {\"total\": \"7.47\",\"currency\": \"USD\"}}]}";
+				StringEntity body =new StringEntity(payload, ContentType.APPLICATION_FORM_URLENCODED);
+
+				HttpPost request = new HttpPost(url);
+				request.setEntity(body);
+				request.addHeader("Content-Type", "application/json");
+				request.addHeader("Authorization", "Bearer " + token );
+
+				HttpClient httpClient = HttpClientBuilder.create().build();
+				HttpResponse response = httpClient.execute(request);
+
+				String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
+				System.out.println(responseString);
+
+				String allowLink = JsonPath.read(responseString,"$.links[1].href");
+				String executeLink = JsonPath.read(responseString,"$.links[2].href");
+
+			}catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+			return new ResponseEntity<>("DSADA",HttpStatus.FOUND);
+
+		}
 
 		if(paymentType == PaymentType.BITCOIN) {
 			
