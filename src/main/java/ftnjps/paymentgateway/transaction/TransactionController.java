@@ -20,7 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,7 +39,7 @@ public class TransactionController {
 	@Autowired
 	private MerchantService merchantService;
 	@Autowired
-	RestTemplate restClient;
+	RestTemplate restClientSelfSigned;
 
 	@Value("${frontend.port}")
 	private int port;
@@ -60,6 +59,7 @@ public class TransactionController {
 			@PathVariable String token,
 			@PathVariable PaymentType paymentType) {
 		Transaction transaction = transactionService.findByToken(token);
+		RestTemplate restClient = new RestTemplate();
 
 		if(paymentType == PaymentType.PAYPAL) {
 			String url = "https://api.sandbox.paypal.com/v1/payments/payment";
@@ -130,7 +130,7 @@ public class TransactionController {
 		String bankUrl = merchantService
 				.findByMerchantId(transaction.getMerchantId())
 				.getBankUrl();
-		URI response = restClient.postForLocation(
+		URI response = restClientSelfSigned.postForLocation(
 				bankUrl + "/api/transactions",
 				transaction);
 		String paymentUrl = response.toString();
