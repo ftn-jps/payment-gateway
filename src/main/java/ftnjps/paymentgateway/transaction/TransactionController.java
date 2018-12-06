@@ -113,10 +113,10 @@ public class TransactionController {
 				map.add("title", token);
 
 				HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
-				ResponseEntity<String> response = restClientBitcoin.postForEntity(url, request, String.class);
+				ResponseEntity<String> response = restClient.postForEntity(url, request, String.class);
 
 				JsonParser basicJsonParser = new BasicJsonParser();
-				String restClient = (String)basicJsonParser.parseMap(response.getBody()).get("payment_url");
+				String paymentUrl = (String)basicJsonParser.parseMap(response.getBody()).get("payment_url");
 
 				return new ResponseEntity<String>(paymentUrl, HttpStatus.OK);
 			
