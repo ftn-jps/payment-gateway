@@ -98,29 +98,33 @@ public class TransactionController {
 			
 			String url = "https://api-sandbox.coingate.com/v2/orders";
 			
-			HttpHeaders headers = new HttpHeaders();
-			headers.set("Content-Type", "application/x-www-form-urlencoded");
-			headers.set("Authorization", "Token FzQjbFWsjfH4LtVzwse6c33hGBWa1fiYag8g24ou");
-			
-			MultiValueMap<String, String> map= new LinkedMultiValueMap<String, String>();
-			map.add("order_id", transaction.getId() + "");
-			map.add("price_amount", transaction.getAmount() + "");
-			map.add("price_currency", "USD");
-			map.add("receive_currency", "USD");
-			map.add("title", token);
-			HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
-			
-			ResponseEntity<String> response = restClient.postForEntity(url, request, String.class);
-			
-			String[] split1 = response.getBody().split(":"); // gives array of 16 strings made from JSON object
-			String[] split2 = split1[15].split("\",");      // takes **** //sandbox.coingate.com/invoice/e4ba2d6b-a0be-43bc-943c-c76233c18b19","token" ****
-			String paymentUrl = "https:" + split2[0];      // and converts it into array of 2 strings where split2[0] is the url
+			try {
+				
+				HttpHeaders headers = new HttpHeaders();
+				headers.set("Content-Type", "application/x-www-form-urlencoded");
+				headers.set("Authorization", "Token FzQjbFWsjfH4LtVzwse6c33hGBWa1fiYag8g24ou");
 
-			HttpHeaders headersForRedirectingToBitcoinPaymentURL = new HttpHeaders();
-			headersForRedirectingToBitcoinPaymentURL.add("Location", paymentUrl);
+				MultiValueMap<String, String> map= new LinkedMultiValueMap<String, String>();
+				map.add("order_id", transaction.getId() + "");
+				map.add("price_amount", transaction.getAmount() + "");
+				map.add("price_currency", "USD");
+				map.add("receive_currency", "USD");
+				map.add("title", token);
+				HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
+
+				ResponseEntity<String> response = restClient.postForEntity(url, request, String.class);
+
+				String[] split1 = response.getBody().split(":"); // gives array of 16 strings made from JSON object
+				String[] split2 = split1[15].split("\",");      // takes **** //sandbox.coingate.com/invoice/e4ba2d6b-a0be-43bc-943c-c76233c18b19","token" ****
+				String paymentUrl = "https:" + split2[0];      // and converts it into array of 2 strings where split2[0] is the url
+
+				return new ResponseEntity<String>(paymentUrl, HttpStatus.OK);
 			
-			return new ResponseEntity<>(headersForRedirectingToBitcoinPaymentURL, HttpStatus.FOUND);
-			
+			}catch (Exception ex) {
+				
+				ex.printStackTrace();
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			}
 		}
 		
 		if(paymentType != PaymentType.BANK) // TODO
