@@ -101,9 +101,6 @@ public class TransactionController {
 			String url = "https://api-sandbox.coingate.com/v2/orders";
 			
 			try {
-				
-				String url = "https://api-sandbox.coingate.com/v2/orders";
-
 				HttpHeaders headers = new HttpHeaders();
 				headers.set("Content-Type", "application/x-www-form-urlencoded");
 				headers.set("Authorization", "Token FzQjbFWsjfH4LtVzwse6c33hGBWa1fiYag8g24ou");
@@ -119,7 +116,7 @@ public class TransactionController {
 				ResponseEntity<String> response = restClientBitcoin.postForEntity(url, request, String.class);
 
 				JsonParser basicJsonParser = new BasicJsonParser();
-				String paymentUrl = (String)basicJsonParser.parseMap(response.getBody()).get("payment_url");
+				String restClient = (String)basicJsonParser.parseMap(response.getBody()).get("payment_url");
 
 				return new ResponseEntity<String>(paymentUrl, HttpStatus.OK);
 			
