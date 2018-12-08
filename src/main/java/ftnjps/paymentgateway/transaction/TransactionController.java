@@ -60,18 +60,20 @@ public class TransactionController {
 	public ResponseEntity<?> forwardTransaction(
 			@PathVariable String token,
 			@PathVariable PaymentType paymentType) {
+		System.out.println("Usao u endpoint");
 		Transaction transaction = transactionService.findByToken(token);
 		RestTemplate restClient = new RestTemplate();
 
 		if(paymentType == PaymentType.PAYPAL) {
+			System.out.println("Usao u paypal");
 			String url = "https://api.sandbox.paypal.com/v1/payments/payment";
 
 			try {
 
 				//TODO: popuniti ovaj payload sa pravim vrednostima. Jebiga sto je ruzno
-				String payload = "{\"intent\": \"sale\",\"redirect_urls\": {\"return_url\": \"https://example.com/your_redirect_url.html\"," +
-						"\"cancel_url\": \"https://example.com/your_cancel_url.html\"},\"payer\": {\"payment_method\": \"paypal\"},\"transactions\": " +
-						"[{\"amount\": {\"total\": \"7.47\",\"currency\": \"USD\"}}]}";
+				String payload = "{\"intent\": \"sale\",\"redirect_urls\": {\"return_url\": \"http://127.0.0.1:4201/paypal/success\"," +
+						"\"cancel_url\": \"http://127.0.0.1:4201/paypal/failure\"},\"payer\": {\"payment_method\": \"paypal\"},\"transactions\": " +
+						"[{\"amount\": {\"total\": \"11.00\",\"currency\": \"USD\"}}]}";
 				StringEntity body =new StringEntity(payload, ContentType.APPLICATION_FORM_URLENCODED);
 
 				HttpPost request = new HttpPost(url);
@@ -88,11 +90,13 @@ public class TransactionController {
 				String allowLink = JsonPath.read(responseString,"$.links[1].href");
 				String executeLink = JsonPath.read(responseString,"$.links[2].href");
 
+				return new ResponseEntity<>(allowLink,HttpStatus.OK);
+
 			}catch (Exception ex) {
 				ex.printStackTrace();
 			}
 
-			return new ResponseEntity<>("DSADA",HttpStatus.FOUND);
+
 
 		}
 
