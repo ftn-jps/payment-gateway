@@ -73,7 +73,7 @@ public class TransactionController {
 				//TODO: popuniti ovaj payload sa pravim vrednostima. Jebiga sto je ruzno
 				String payload = "{\"intent\": \"sale\",\"redirect_urls\": {\"return_url\": \"http://127.0.0.1:4201/paypal/success\"," +
 						"\"cancel_url\": \"http://127.0.0.1:4201/paypal/failure\"},\"payer\": {\"payment_method\": \"paypal\"},\"transactions\": " +
-						"[{\"amount\": {\"total\": \"11.00\",\"currency\": \"USD\"}}]}";
+						"[{\"amount\": {\"total\": \"0.15\",\"currency\": \"USD\"}}]}";
 				StringEntity body =new StringEntity(payload, ContentType.APPLICATION_FORM_URLENCODED);
 
 				HttpPost request = new HttpPost(url);
@@ -95,9 +95,6 @@ public class TransactionController {
 			}catch (Exception ex) {
 				ex.printStackTrace();
 			}
-
-
-
 		}
 
 		if(paymentType == PaymentType.BITCOIN) {
