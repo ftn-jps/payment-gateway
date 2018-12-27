@@ -44,8 +44,8 @@ public class TransactionController {
 	@Autowired
 	RestTemplate restClientSelfSigned;
 
-	@Value("${frontend.port}")
-	private int frontendUrl;
+	@Value("${frontend.url}")
+	private String frontendUrl;
 
 	@PostMapping
 	public ResponseEntity<?> startTransaction(@RequestBody @Valid Transaction transaction) {
