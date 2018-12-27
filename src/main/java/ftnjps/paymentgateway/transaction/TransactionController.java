@@ -4,7 +4,6 @@ import java.net.URI;
 
 import javax.validation.Valid;
 
-import com.jayway.jsonpath.JsonPath;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -14,6 +13,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.json.BasicJsonParser;
+import org.springframework.boot.json.JsonParser;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,8 +28,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.boot.json.BasicJsonParser;
-import org.springframework.boot.json.JsonParser;
+
+import com.jayway.jsonpath.JsonPath;
 
 import ftnjps.paymentgateway.merchant.MerchantService;
 
@@ -44,7 +45,7 @@ public class TransactionController {
 	RestTemplate restClientSelfSigned;
 
 	@Value("${frontend.port}")
-	private int port;
+	private int frontendUrl;
 
 	@PostMapping
 	public ResponseEntity<?> startTransaction(@RequestBody @Valid Transaction transaction) {
@@ -52,7 +53,7 @@ public class TransactionController {
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Location",
-				"https://localhost:" + port + "/#/transaction/" + newTransaction.getToken());
+				frontendUrl + "/#/transaction/" + newTransaction.getToken());
 		return new ResponseEntity<>(headers, HttpStatus.FOUND);
 	}
 
@@ -98,9 +99,9 @@ public class TransactionController {
 		}
 
 		if(paymentType == PaymentType.BITCOIN) {
-			
+
 			String url = "https://api-sandbox.coingate.com/v2/orders";
-			
+
 			try {
 				HttpHeaders headers = new HttpHeaders();
 				headers.set("Content-Type", "application/x-www-form-urlencoded");
@@ -120,9 +121,9 @@ public class TransactionController {
 				String paymentUrl = (String)basicJsonParser.parseMap(response.getBody()).get("payment_url");
 
 				return new ResponseEntity<String>(paymentUrl, HttpStatus.OK);
-			
+
 			}catch (Exception ex) {
-				
+
 				ex.printStackTrace();
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			}
