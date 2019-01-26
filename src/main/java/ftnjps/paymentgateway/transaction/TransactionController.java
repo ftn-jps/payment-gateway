@@ -140,7 +140,8 @@ public class TransactionController {
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Location",
-				paymentUrl);
-		return new ResponseEntity<>(headers, HttpStatus.FOUND);
+			paymentUrl);
+//		return new ResponseEntity<>(headers, HttpStatus.FOUND);
+		return new ResponseEntity<>(paymentUrl, HttpStatus.OK);
 	}
 }
