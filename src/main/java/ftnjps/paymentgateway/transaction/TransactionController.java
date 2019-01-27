@@ -1,9 +1,12 @@
 package ftnjps.paymentgateway.transaction;
 
 import java.net.URI;
+import java.util.Base64;
 
+import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import ftnjps.paymentgateway.merchant.Merchant;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -60,27 +63,36 @@ public class TransactionController {
 	@GetMapping("/{token}/type/{paymentType}")
 	public ResponseEntity<?> forwardTransaction(
 			@PathVariable String token,
-			@PathVariable PaymentType paymentType) {
+			@PathVariable PaymentType paymentType)
+	{
 		System.out.println("Usao u endpoint");
+		System.out.println("Token: " + token);
 		Transaction transaction = transactionService.findByToken(token);
 		RestTemplate restClient = new RestTemplate();
 
 		if(paymentType == PaymentType.PAYPAL) {
-			System.out.println("Usao u paypal");
-			String url = "https://api.sandbox.paypal.com/v1/payments/payment";
+			final Merchant merchant = merchantService.findByMerchantId(transaction.getMerchantId());
+			final String accessToken = getPaypalAccessToken(merchant);
+			System.out.println(accessToken);
+			final String encodedAccessToken =
+				new String(Base64.getEncoder().encode(accessToken.getBytes()));
 
 			try {
-
+				final String url = "https://api.sandbox.paypal.com/v1/payments/payment";
 				//TODO: popuniti ovaj payload sa pravim vrednostima. Jebiga sto je ruzno
-				String payload = "{\"intent\": \"sale\",\"redirect_urls\": {\"return_url\": \"http://127.0.0.1:4201/paypal/success\"," +
-						"\"cancel_url\": \"http://127.0.0.1:4201/paypal/failure\"},\"payer\": {\"payment_method\": \"paypal\"},\"transactions\": " +
-						"[{\"amount\": {\"total\": \"0.15\",\"currency\": \"USD\"}}]}";
-				StringEntity body =new StringEntity(payload, ContentType.APPLICATION_FORM_URLENCODED);
+				final String payload =
+					"{\"intent\": \"sale\",\"redirect_urls\": {\"return_url\": " +
+					"\"http://127.0.0.1:4201/paypal/success\"," +
+					"\"cancel_url\": \"http://127.0.0.1:4201/paypal/failure\"},\"payer\": {\"payment_method\": \"paypal\"},\"transactions\": " +
+					"[{\"amount\": {\"total\": \"" +
+					String.valueOf(transaction.getAmount()) +
+					"\",\"currency\": \"USD\"}}]}";
+				final StringEntity body =new StringEntity(payload, ContentType.APPLICATION_FORM_URLENCODED);
 
 				HttpPost request = new HttpPost(url);
 				request.setEntity(body);
 				request.addHeader("Content-Type", "application/json");
-				request.addHeader("Authorization", "Bearer " + token );
+				request.addHeader("Authorization", "Bearer " + accessToken );
 
 				HttpClient httpClient = HttpClientBuilder.create().build();
 				HttpResponse response = httpClient.execute(request);
@@ -89,9 +101,8 @@ public class TransactionController {
 				System.out.println(responseString);
 
 				String allowLink = JsonPath.read(responseString,"$.links[1].href");
-				String executeLink = JsonPath.read(responseString,"$.links[2].href");
 
-				return new ResponseEntity<>(allowLink,HttpStatus.OK);
+				return new ResponseEntity<>(allowLink + "\n" + encodedAccessToken,HttpStatus.OK);
 
 			}catch (Exception ex) {
 				ex.printStackTrace();
@@ -144,4 +155,40 @@ public class TransactionController {
 //		return new ResponseEntity<>(headers, HttpStatus.FOUND);
 		return new ResponseEntity<>(paymentUrl, HttpStatus.OK);
 	}
+
+	private String getPaypalAccessToken(final Merchant merchant){
+		if("".equals(merchant.getPaypalSecret()) || merchant.getPaypalSecret() == null) {
+			throw new EntityNotFoundException("Merchant that started the transaction doesn't" +
+				"have a paypal account.");
+		}
+		final String getAccessTokenUrl = "https://api.sandbox.paypal.com/v1/oauth2/token";
+		final String clientId = merchant.getPaypalClient();
+		final String secretId = merchant.getPaypalSecret();
+		final String authorizatioHeaderValue =
+			"Basic " +
+				new String(Base64.getEncoder().encode((clientId + ":" + secretId).getBytes()
+				));
+		final String getAccessTokenPayload = "grant_type=client_credentials";
+		final StringEntity  getAccessTokenBody =
+			new StringEntity(getAccessTokenPayload, ContentType.APPLICATION_FORM_URLENCODED);
+
+		final HttpPost getAccessTokenRequest = new HttpPost(getAccessTokenUrl);
+
+		getAccessTokenRequest.setEntity(getAccessTokenBody);
+		getAccessTokenRequest.addHeader("Content-Type", "application/x-www-form-urlencoded");
+		getAccessTokenRequest.addHeader("Authorization", authorizatioHeaderValue );
+
+		final HttpClient httpClient = HttpClientBuilder.create().build();
+
+		try {
+			HttpResponse response = httpClient.execute(getAccessTokenRequest);
+			String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
+			String accessToken = JsonPath.read(responseString, "$.access_token");
+			return accessToken;
+		} catch (Exception e) {
+			throw new RuntimeException("Error ocurred when trying to get paypal token");
+		}
+	}
+
+
 }

@@ -15,21 +15,20 @@ public class Merchant {
 	@GeneratedValue
 	@JsonProperty(access = Access.READ_ONLY)
 	private Long id;
-
-	/*
-	 * ID that the bank gives to the merchant when registering for online payment
-	 */
 	@Pattern(regexp = "\\w{1,30}")
 	private String merchantId;
-
-
 	private String bankUrl;
+	private String paypalClient;
+	private String paypalSecret;
+
 
 	public Merchant() {}
 
-	public Merchant(String merchantId, String bankUrl) {
+	public Merchant(String merchantId, String bankUrl, String paypalClient, String paypalSecret) {
 		this.merchantId = merchantId;
 		this.bankUrl = bankUrl;
+		this.paypalClient = paypalClient;
+		this.paypalSecret = paypalSecret;
 	}
 
 	public Long getId() {
@@ -54,6 +53,22 @@ public class Merchant {
 
 	public void setBankUrl(String bankUrl) {
 		this.bankUrl = bankUrl;
+	}
+
+	public String getPaypalClient() {
+		return paypalClient;
+	}
+
+	public void setPaypalClient(String paypalClient) {
+		this.paypalClient = paypalClient;
+	}
+
+	public String getPaypalSecret() {
+		return paypalSecret;
+	}
+
+	public void setPaypalSecret(String paypalSecret) {
+		this.paypalSecret = paypalSecret;
 	}
 
 }
