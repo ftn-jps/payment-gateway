@@ -82,8 +82,8 @@ public class TransactionController {
 				//TODO: popuniti ovaj payload sa pravim vrednostima. Jebiga sto je ruzno
 				final String payload =
 					"{\"intent\": \"sale\",\"redirect_urls\": {\"return_url\": " +
-					"\"http://127.0.0.1:4201/paypal/success\"," +
-					"\"cancel_url\": \"http://127.0.0.1:4201/paypal/failure\"},\"payer\": {\"payment_method\": \"paypal\"},\"transactions\": " +
+					"\"http://localhost:4201/paypal/success\"," +
+					"\"cancel_url\": \"http://localhost:4201/paypal/failure\"},\"payer\": {\"payment_method\": \"paypal\"},\"transactions\": " +
 					"[{\"amount\": {\"total\": \"" +
 					String.valueOf(transaction.getAmount()) +
 					"\",\"currency\": \"USD\"}}]}";
