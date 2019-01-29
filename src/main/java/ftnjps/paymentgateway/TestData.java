@@ -2,6 +2,8 @@ package ftnjps.paymentgateway;
 
 import javax.annotation.PostConstruct;
 
+import ftnjps.paymentgateway.subscription.Subscription;
+import ftnjps.paymentgateway.subscription.SubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +19,8 @@ public class TestData {
 	private MerchantService merchantService;
 	@Autowired
 	private TransactionService transactionService;
+	@Autowired
+	private SubscriptionService subscriptionService;
 
 	@PostConstruct
 	private void init() {
@@ -37,6 +41,15 @@ public class TestData {
 				"NOTHING IS WORKING");
 		t1.setToken("111");
 		transactionService.add(t1);
+
+		Subscription s1 = new Subscription(
+			9.99,
+			"test",
+			"http://localhost:4201/subscription/success",
+			"http://localhost:4201/subscription/failure"
+		);
+		s1.setToken("13");
+		subscriptionService.add(s1);
 	}
 
 }

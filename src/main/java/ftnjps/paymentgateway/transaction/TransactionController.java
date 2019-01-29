@@ -7,6 +7,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
 import ftnjps.paymentgateway.merchant.Merchant;
+import ftnjps.paymentgateway.paypal.PaypalService;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -72,7 +73,7 @@ public class TransactionController {
 
 		if(paymentType == PaymentType.PAYPAL) {
 			final Merchant merchant = merchantService.findByMerchantId(transaction.getMerchantId());
-			final String accessToken = getPaypalAccessToken(merchant);
+			final String accessToken = PaypalService.getPaypalAccessToken(merchant);
 			System.out.println(accessToken);
 			final String encodedAccessToken =
 				new String(Base64.getEncoder().encode(accessToken.getBytes()));
@@ -156,39 +157,6 @@ public class TransactionController {
 		return new ResponseEntity<>(paymentUrl, HttpStatus.OK);
 	}
 
-	private String getPaypalAccessToken(final Merchant merchant){
-		if("".equals(merchant.getPaypalSecret()) || merchant.getPaypalSecret() == null) {
-			throw new EntityNotFoundException("Merchant that started the transaction doesn't" +
-				"have a paypal account.");
-		}
-		final String getAccessTokenUrl = "https://api.sandbox.paypal.com/v1/oauth2/token";
-		final String clientId = merchant.getPaypalClient();
-		final String secretId = merchant.getPaypalSecret();
-		final String authorizatioHeaderValue =
-			"Basic " +
-				new String(Base64.getEncoder().encode((clientId + ":" + secretId).getBytes()
-				));
-		final String getAccessTokenPayload = "grant_type=client_credentials";
-		final StringEntity  getAccessTokenBody =
-			new StringEntity(getAccessTokenPayload, ContentType.APPLICATION_FORM_URLENCODED);
-
-		final HttpPost getAccessTokenRequest = new HttpPost(getAccessTokenUrl);
-
-		getAccessTokenRequest.setEntity(getAccessTokenBody);
-		getAccessTokenRequest.addHeader("Content-Type", "application/x-www-form-urlencoded");
-		getAccessTokenRequest.addHeader("Authorization", authorizatioHeaderValue );
-
-		final HttpClient httpClient = HttpClientBuilder.create().build();
-
-		try {
-			HttpResponse response = httpClient.execute(getAccessTokenRequest);
-			String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
-			String accessToken = JsonPath.read(responseString, "$.access_token");
-			return accessToken;
-		} catch (Exception e) {
-			throw new RuntimeException("Error ocurred when trying to get paypal token");
-		}
-	}
 
 
 }
