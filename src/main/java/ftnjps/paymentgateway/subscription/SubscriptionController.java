@@ -1,8 +1,10 @@
 package ftnjps.paymentgateway.subscription;
 
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.spi.mapper.JsonSmartMappingProvider;
 import ftnjps.paymentgateway.merchant.MerchantService;
 import ftnjps.paymentgateway.paypal.PaypalService;
+import net.minidev.json.JSONObject;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 import javax.validation.Valid;
 import javax.xml.ws.Response;
@@ -46,7 +49,8 @@ public class SubscriptionController {
         return new ResponseEntity<Subscription>(subscriptionService.findByToken(token), HttpStatus.OK);
     }
 
-    @GetMapping("/subscribe/{token}")
+    @GetMapping(value = "/subscribe/{token}", produces = "application/json")
+
     public ResponseEntity<?> subscribe(@PathVariable final String token){
         Subscription s = subscriptionService.findByToken(token);
         final String accessToken = PaypalService.getPaypalAccessToken(
@@ -66,11 +70,16 @@ public class SubscriptionController {
 
         //napravis agreement
         String twoMinsLaterTime = (new Date()).toInstant().plus(Duration.ofMinutes(2)).toString();
-        System.out.println(twoMinsLaterTime);
-        final String createAgreement = PaypalService.createAgreement(accessToken,twoMinsLaterTime);
+
+        final String createAgreement = PaypalService.createAgreement(accessToken,twoMinsLaterTime, planId);
         System.out.println(createAgreement);
+        String approvalUrl = JsonPath.read(createAgreement, "$.links[0].href");
+        System.out.println(approvalUrl);
+
+        String jsonString = "{ \"url\" : \""+ approvalUrl+"\"}";
+
 
         //sutnes ga na confirmAgreement
-        return null;
+        return new ResponseEntity<>(jsonString, HttpStatus.OK);
     }
 }

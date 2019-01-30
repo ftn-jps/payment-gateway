@@ -61,8 +61,8 @@ public class PaypalService {
             "," +
             "\"currency\":\"USD\"},\"cycles\":\"24\"}]," +
             "\"merchant_preferences\":{\"setup_fee\":{\"value\":\"0\",\"currency\":\"USD\"}," +
-            "\"return_url\":\"https://localhost:4201/subscription/success\"," +
-            "\"cancel_url\":" + "\"https://localhost:4201/subscription/failure\"," +
+            "\"return_url\":\"http://localhost:4201/subscription/success\"," +
+            "\"cancel_url\":" + "\"http://localhost:4201/subscription/failure\"," +
             "\"auto_bill_amount\":\"YES\"," +
             "\"initial_fail_amount_action\":\"CONTINUE\",\"max_fail_attempts\":\"0\"}}";
 
@@ -105,14 +105,20 @@ public class PaypalService {
         }
     }
 
-    public static String createAgreement(final String accessToken, final String startDate){
-
+    public static String createAgreement(
+        final String accessToken,
+        final String startDate,
+        final String planId
+    ){
         final String url = "https://api.sandbox.paypal.com/v1/payments/billing-agreements";
-        final String payload = "{{\"name\":\"Sporazum o placanju\",\"description\":\"Sporazum " +
-            "o placanju magazina na mesecnom nivou od strane korisnika\",\"start_date\":\"2019-" +
-            "06-17T9:45:04Z\",\"payer\":{\"payment_method\":\"paypal\",\"payer_in" +
-            "fo\":{\"email\":\"fpetrovic-buyer@ymail.com\"}},\"plan\":{\"id\":\"P-7YH" +
-            "79182N8174611KSWG42KI\"}}";
+        final String payload =
+            "{\"name\":\"Sporazum o placanju\"," +
+            "\"description\":\"Sporazum o placanju magazina na mesecnom nivou od strane korisnika\"," +
+            "\"start_date\":\"2019-06-17T9:45:04Z\"," +
+            "\"payer\":{\"payment_method\":\"paypal\",\"payer_info\":{\"email\":\"fpetrovic-buyer@ymail.com\"}}," +
+            "\"plan\":{\"id\":\"" +
+            planId +
+            "\"}}";
 
         final StringEntity body =new StringEntity(payload, ContentType.APPLICATION_FORM_URLENCODED);
 
