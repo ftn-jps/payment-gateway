@@ -23,6 +23,7 @@ import javax.validation.Valid;
 import javax.xml.ws.Response;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Date;
 
 @RestController
@@ -50,7 +51,6 @@ public class SubscriptionController {
     }
 
     @GetMapping(value = "/subscribe/{token}", produces = "application/json")
-
     public ResponseEntity<?> subscribe(@PathVariable final String token){
         Subscription s = subscriptionService.findByToken(token);
         final String accessToken = PaypalService.getPaypalAccessToken(
@@ -76,10 +76,18 @@ public class SubscriptionController {
         String approvalUrl = JsonPath.read(createAgreement, "$.links[0].href");
         System.out.println(approvalUrl);
 
-        String jsonString = "{ \"url\" : \""+ approvalUrl+"\"}";
+        String encodedToken =  new String(Base64.getEncoder().encode(accessToken.getBytes()));
+        String jsonString = "{ " +
+            "\"url\" : \""+ approvalUrl+"\"," +
+            "\"encodedAccessToken\" : \""+ encodedToken+"\"" +
+            "}";
+
 
 
         //sutnes ga na confirmAgreement
         return new ResponseEntity<>(jsonString, HttpStatus.OK);
     }
+
+
+
 }
