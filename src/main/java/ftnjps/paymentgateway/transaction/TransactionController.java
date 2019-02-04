@@ -74,17 +74,15 @@ public class TransactionController {
 		if(paymentType == PaymentType.PAYPAL) {
 			final Merchant merchant = merchantService.findByMerchantId(transaction.getMerchantId());
 			final String accessToken = PaypalService.getPaypalAccessToken(merchant);
-			System.out.println(accessToken);
 			final String encodedAccessToken =
 				new String(Base64.getEncoder().encode(accessToken.getBytes()));
 
 			try {
 				final String url = "https://api.sandbox.paypal.com/v1/payments/payment";
-				//TODO: popuniti ovaj payload sa pravim vrednostima. Jebiga sto je ruzno
 				final String payload =
 					"{\"intent\": \"sale\",\"redirect_urls\": {\"return_url\": " +
-					"\"http://localhost:4201/paypal/success\"," +
-					"\"cancel_url\": \"http://localhost:4201/paypal/failure\"},\"payer\": {\"payment_method\": \"paypal\"},\"transactions\": " +
+					"\"https://localhost:4201/paypal/success\"," +
+					"\"cancel_url\": \"https://localhost:4201/paypal/failure\"},\"payer\": {\"payment_method\": \"paypal\"},\"transactions\": " +
 					"[{\"amount\": {\"total\": \"" +
 					String.valueOf(transaction.getAmount()) +
 					"\",\"currency\": \"USD\"}}]}";
@@ -102,8 +100,10 @@ public class TransactionController {
 				System.out.println(responseString);
 
 				String allowLink = JsonPath.read(responseString,"$.links[1].href");
+				final String encodedAllowLink =
+					new String(Base64.getEncoder().encode(allowLink.getBytes()));
 
-				return new ResponseEntity<>(allowLink + "\n" + encodedAccessToken,HttpStatus.OK);
+				return new ResponseEntity<>(encodedAllowLink + "\n" + encodedAccessToken,HttpStatus.OK);
 
 			}catch (Exception ex) {
 				ex.printStackTrace();

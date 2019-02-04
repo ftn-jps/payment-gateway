@@ -13,7 +13,10 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Base64;
+import java.util.Date;
 
 @Service
 public class PaypalService {
@@ -55,14 +58,13 @@ public class PaypalService {
         final String url = "https://api.sandbox.paypal.com/v1/payments/billing-plans";
         final String payload = "{\"name\":\"Magazine subscription plan\",\"description\":\"A plan that is defined for" +
             " billing user for accessing magazine\",\"type\":\"fixed\",\"payment_definitions\":[{\"name\":\"Regular " +
-            "payment definition\",\"type\":\"REGULAR\",\"frequency\":\"MO" +
-            "NTH\",\"frequency_interval\":\"1\",\"amount\":{\"value\":" +
+            "payment definition\",\"type\":\"REGULAR\",\"frequency\":\"MONTH\",\"frequency_interval\":\"1\",\"amount\":{\"value\":" +
             amount +
             "," +
             "\"currency\":\"USD\"},\"cycles\":\"24\"}]," +
             "\"merchant_preferences\":{\"setup_fee\":{\"value\":\"0\",\"currency\":\"USD\"}," +
-            "\"return_url\":\"http://localhost:4201/subscription/success\"," +
-            "\"cancel_url\":" + "\"http://localhost:4201/subscription/failure\"," +
+            "\"return_url\":\"https://localhost:4201/subscription/success\"," +
+            "\"cancel_url\":" + "\"https://localhost:4201/subscription/failure\"," +
             "\"auto_bill_amount\":\"YES\"," +
             "\"initial_fail_amount_action\":\"CONTINUE\",\"max_fail_attempts\":\"0\"}}";
 
@@ -114,7 +116,9 @@ public class PaypalService {
         final String payload =
             "{\"name\":\"Sporazum o placanju\"," +
             "\"description\":\"Sporazum o placanju magazina na mesecnom nivou od strane korisnika\"," +
-            "\"start_date\":\"2019-06-17T9:45:04Z\"," +
+            "\"start_date\":\"" +
+            startDate +
+            "\"," +
             "\"payer\":{\"payment_method\":\"paypal\",\"payer_info\":{\"email\":\"fpetrovic-buyer@ymail.com\"}}," +
             "\"plan\":{\"id\":\"" +
             planId +

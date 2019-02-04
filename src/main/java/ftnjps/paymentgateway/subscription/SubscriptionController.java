@@ -69,9 +69,9 @@ public class SubscriptionController {
         }
 
         //napravis agreement
-        String twoMinsLaterTime = (new Date()).toInstant().plus(Duration.ofMinutes(2)).toString();
+        String startDate = (new Date()).toInstant().plus(Duration.ofMinutes(2)).toString();
 
-        final String createAgreement = PaypalService.createAgreement(accessToken,twoMinsLaterTime, planId);
+        final String createAgreement = PaypalService.createAgreement(accessToken,startDate, planId);
         System.out.println(createAgreement);
         String approvalUrl = JsonPath.read(createAgreement, "$.links[0].href");
         System.out.println(approvalUrl);
