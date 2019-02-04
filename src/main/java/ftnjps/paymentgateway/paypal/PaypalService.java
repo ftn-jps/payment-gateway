@@ -22,8 +22,7 @@ import java.util.Date;
 public class PaypalService {
     public static String getPaypalAccessToken(final Merchant merchant){
         if("".equals(merchant.getPaypalSecret()) || merchant.getPaypalSecret() == null) {
-            throw new EntityNotFoundException("Merchant that started the transaction doesn't" +
-                "have a paypal account.");
+            throw new EntityNotFoundException("Error while trying to access paypal");
         }
         final String getAccessTokenUrl = "https://api.sandbox.paypal.com/v1/oauth2/token";
         final String clientId = merchant.getPaypalClient();

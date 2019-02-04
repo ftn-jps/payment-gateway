@@ -66,13 +66,17 @@ public class TransactionController {
 			@PathVariable String token,
 			@PathVariable PaymentType paymentType)
 	{
-		System.out.println("Usao u endpoint");
-		System.out.println("Token: " + token);
 		Transaction transaction = transactionService.findByToken(token);
 		RestTemplate restClient = new RestTemplate();
 
 		if(paymentType == PaymentType.PAYPAL) {
 			final Merchant merchant = merchantService.findByMerchantId(transaction.getMerchantId());
+
+			if(merchant.getPaypalSecret() == null){
+				return new ResponseEntity<>("Current merchant doesn't" +
+					" support paypal payments", HttpStatus.OK);
+			}
+
 			final String accessToken = PaypalService.getPaypalAccessToken(merchant);
 			final String encodedAccessToken =
 				new String(Base64.getEncoder().encode(accessToken.getBytes()));
@@ -82,7 +86,8 @@ public class TransactionController {
 				final String payload =
 					"{\"intent\": \"sale\",\"redirect_urls\": {\"return_url\": " +
 					"\"https://localhost:4201/paypal/success\"," +
-					"\"cancel_url\": \"https://localhost:4201/paypal/failure\"},\"payer\": {\"payment_method\": \"paypal\"},\"transactions\": " +
+					"\"cancel_url\": \"https://localhost:4201/paypal/failure\"},\"payer\":" +
+					" {\"payment_method\": \"paypal\"},\"transactions\": " +
 					"[{\"amount\": {\"total\": \"" +
 					String.valueOf(transaction.getAmount()) +
 					"\",\"currency\": \"USD\"}}]}";
@@ -142,9 +147,15 @@ public class TransactionController {
 		}
 
 		// BANK
+
 		String bankUrl = merchantService
 				.findByMerchantId(transaction.getMerchantId())
 				.getBankUrl();
+
+		if(bankUrl == null) {
+			return new ResponseEntity<>("Current mercant doesn't " +
+				"support bank payments", HttpStatus.BAD_REQUEST);
+		}
 		URI response = restClientSelfSigned.postForLocation(
 				bankUrl + "/api/transactions",
 				transaction);
