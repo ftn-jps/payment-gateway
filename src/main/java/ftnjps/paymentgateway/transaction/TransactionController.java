@@ -3,7 +3,6 @@ package ftnjps.paymentgateway.transaction;
 import java.net.URI;
 import java.util.Base64;
 
-import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
 import ftnjps.paymentgateway.merchant.Merchant;
@@ -117,12 +116,13 @@ public class TransactionController {
 
 		if(paymentType == PaymentType.BITCOIN) {
 
+			final Merchant merchant = merchantService.findByMerchantId(transaction.getMerchantId());
 			String url = "https://api-sandbox.coingate.com/v2/orders";
 
 			try {
 				HttpHeaders headers = new HttpHeaders();
 				headers.set("Content-Type", "application/x-www-form-urlencoded");
-				headers.set("Authorization", "Token FzQjbFWsjfH4LtVzwse6c33hGBWa1fiYag8g24ou");
+				headers.set("Authorization", "Token " + merchant.getBitcoinToken());
 
 				MultiValueMap<String, String> map= new LinkedMultiValueMap<String, String>();
 				map.add("order_id", transaction.getId() + "");

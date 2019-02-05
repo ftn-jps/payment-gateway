@@ -18,15 +18,17 @@ public class Merchant {
 	private String bankUrl;
 	private String paypalClient;
 	private String paypalSecret;
+	private String bitcoinToken;
 
 
 	public Merchant() {}
 
-	public Merchant(String merchantId, String bankUrl, String paypalClient, String paypalSecret) {
+	public Merchant(String merchantId, String bankUrl, String paypalClient, String paypalSecret, String bitcoinToken) {
 		this.merchantId = merchantId;
 		this.bankUrl = bankUrl;
 		this.paypalClient = paypalClient;
 		this.paypalSecret = paypalSecret;
+		this.bitcoinToken = bitcoinToken;
 	}
 
 	public Long getId() {
@@ -69,4 +71,12 @@ public class Merchant {
 		this.paypalSecret = paypalSecret;
 	}
 
+	public String getBitcoinToken() {
+		return bitcoinToken;
+	}
+
+	public void setBitcoinToken(String bitcoinToken) {
+		this.bitcoinToken = bitcoinToken;
+	}
+	
 }
