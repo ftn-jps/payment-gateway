@@ -3,7 +3,6 @@ package ftnjps.paymentgateway.merchant;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -15,7 +14,6 @@ public class Merchant {
 	@GeneratedValue
 	@JsonProperty(access = Access.READ_ONLY)
 	private Long id;
-	@Pattern(regexp = "\\w{1,30}")
 	private String merchantId;
 	private String bankUrl;
 	private String paypalClient;
