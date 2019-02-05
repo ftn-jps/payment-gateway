@@ -34,22 +34,22 @@ public class TestData {
 		Merchant m2 = new Merchant(
 				"2222-2222",
 				"https://localhost:8085",
-				"ATpIbDWRhS_L3c46Iz9-qgE1l_Iisfg6u4luC-JOPxfp2Klg6VrRz1ANceUgXSH-OTEckdBLwIKrs4Ug",
-				"EDDxtGUSysQafC--ODcd8jKoE8ZFNNa3tNB82I4u4lTPU3cNjeV3DsWO8NhE3H1mK46Euz0ZtOD5HNBO"
+				"AYlJx-Cj7IAnpE2hUhMCkUC7yr2k7gc7fTpIltzCx1K49ud8vrZlygsjyAb06BqV5jg8qTXNmY1horoN",
+				"EBg6mriKkYfLz7z3e7NGCEVYVis5gttdpWO3KjK7WOWhRgc5YpCwTR7334CqaMoU_wWNFQj5QLDOQvYR"
 				);
 		merchantService.add(m2);
 		Merchant m3 = new Merchant(
 				"3333-3333",
 				"https://localhost:8085",
-				"ATpIbDWRhS_L3c46Iz9-qgE1l_Iisfg6u4luC-JOPxfp2Klg6VrRz1ANceUgXSH-OTEckdBLwIKrs4Ug",
-				"EDDxtGUSysQafC--ODcd8jKoE8ZFNNa3tNB82I4u4lTPU3cNjeV3DsWO8NhE3H1mK46Euz0ZtOD5HNBO"
+				"AWzSm6cXMy0x7R8_O1vyEFGBYFR3mpcg4TlymBqLAtd8F8zVdEumPng4lt6DpEVmllFqKvPKiVAsy2lP",
+				"EMvoym1t4MEP8ZMJurUSzvP1PxmxwVRKMDFCCjX0a_DSKPSt7GxJcBUDhx24aCsndC68TtuTq_PWgB8g"
 				);
 		merchantService.add(m3);
 		Merchant m4 = new Merchant(
 				"4444-4444",
 				"https://localhost:8085",
-				"ATpIbDWRhS_L3c46Iz9-qgE1l_Iisfg6u4luC-JOPxfp2Klg6VrRz1ANceUgXSH-OTEckdBLwIKrs4Ug",
-				"EDDxtGUSysQafC--ODcd8jKoE8ZFNNa3tNB82I4u4lTPU3cNjeV3DsWO8NhE3H1mK46Euz0ZtOD5HNBO"
+				"AUTVmSk_KTNwyvq5CObIwz_oyQJKSuzVKHWRaxy46xDzXt3NTBpcgK5rp5LrDrgzrs1yA5ygf_hX9_wk",
+				"ECKCchD_eMAtgvU2qudU2hbw-Z3GLjn8nXFJa3yHyDgXKUjO1l_8h7ZTRAaxgCMozO8pLoRBeG7h2rZs"
 				);
 		merchantService.add(m4);
 
