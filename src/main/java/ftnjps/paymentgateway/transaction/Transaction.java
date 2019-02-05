@@ -7,8 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
@@ -29,12 +27,10 @@ public class Transaction {
 	@Positive
 	private double amount;
 
-	@Pattern(regexp = "\\w{1,30}")
 	@NotBlank
 	private String merchantId;
 
 	@Size(min = 6, max = 100)
-	@NotEmpty
 	private String merchantPassword;
 
 	@Positive
