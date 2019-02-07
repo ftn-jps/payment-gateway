@@ -130,6 +130,8 @@ public class TransactionController {
 				map.add("price_currency", "USD");
 				map.add("receive_currency", "USD");
 				map.add("title", token);
+				map.add("cancel_url", transaction.getFailUrl());
+				map.add("success_url", transaction.getSuccessUrl());
 
 				HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
 				ResponseEntity<String> response = restClient.postForEntity(url, request, String.class);
