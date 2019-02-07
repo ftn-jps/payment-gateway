@@ -73,16 +73,23 @@ public class TransactionController {
 			@PathVariable String token,
 			@PathVariable PaymentType paymentType)
 	{
+		System.out.println("Getting transaction with token " + token );
 		Transaction transaction = transactionService.findByToken(token);
+		System.out.println("Transaction with token " + token + " successfully obtained");
 		RestTemplate restClient = new RestTemplate();
 
 		if(paymentType == PaymentType.PAYPAL) {
+			System.out.println("Getting merchant with id " + transaction.getMerchantId());
 			final Merchant merchant = merchantService.findByMerchantId(transaction.getMerchantId());
 
+
 			if(merchant.getPaypalSecret() == null){
+				System.out.println("Merchant with id " + merchant.getMerchantId() + " doesn't support paypal payments");
 				return new ResponseEntity<>("Current merchant doesn't" +
 					" support paypal payments", HttpStatus.OK);
 			}
+
+			System.out.println("Merchant with id " + merchant.getMerchantId() + " successfully obtained");
 
 			final String accessToken = PaypalService.getPaypalAccessToken(merchant);
 			final String encodedAccessToken =
@@ -101,21 +108,24 @@ public class TransactionController {
 					"\",\"currency\": \"USD\"}}]}";
 				final StringEntity body =new StringEntity(payload, ContentType.APPLICATION_FORM_URLENCODED);
 
+				System.out.println("Generating request for creating payment");
 				HttpPost request = new HttpPost(url);
 				request.setEntity(body);
 				request.addHeader("Content-Type", "application/json");
 				request.addHeader("Authorization", "Bearer " + accessToken );
 
 				HttpClient httpClient = HttpClientBuilder.create().build();
+				System.out.println("Sending request for creating payment");
 				HttpResponse response = httpClient.execute(request);
 
+				System.out.println("Payment created successfully");
 				String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
-				System.out.println(responseString);
 
 				String allowLink = JsonPath.read(responseString,"$.links[1].href");
 				final String encodedAllowLink =
 					new String(Base64.getEncoder().encode(allowLink.getBytes()));
 
+				System.out.println("Redirecting user to allow link");
 				return new ResponseEntity<>(encodedAllowLink + "\n" + encodedAccessToken,HttpStatus.OK);
 
 			}catch (Exception ex) {
@@ -124,11 +134,21 @@ public class TransactionController {
 		}
 
 		if(paymentType == PaymentType.BITCOIN) {
-
+			System.out.println("Getting merchant with id " + transaction.getMerchantId());
 			final Merchant merchant = merchantService.findByMerchantId(transaction.getMerchantId());
+
+			if(merchant.getBitcoinToken() == null) {
+				System.out.println("Merchant with id " + merchant.getMerchantId() + " doesn't support bitcoin payments");
+				return new ResponseEntity<>("Current merchant doesn't" +
+					" support bitcoin payments", HttpStatus.OK);
+			}
+
+			System.out.println("Merchant with id " + merchant.getMerchantId() + " successfully obtained");
+
 			String url = "https://api-sandbox.coingate.com/v2/orders";
 
 			try {
+				System.out.println("Generating request for bitcoin payment");
 				HttpHeaders headers = new HttpHeaders();
 				headers.set("Content-Type", "application/x-www-form-urlencoded");
 				headers.set("Authorization", "Token " + merchant.getBitcoinToken());
@@ -142,12 +162,14 @@ public class TransactionController {
 				map.add("cancel_url", transaction.getFailUrl());
 				map.add("success_url", transaction.getSuccessUrl());
 
+				System.out.println("Sending request for bitcoin payment");
 				HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
 				ResponseEntity<String> response = restClient.postForEntity(url, request, String.class);
-
+				System.out.println("Payment created successfully");
 				JsonParser basicJsonParser = new BasicJsonParser();
 				String paymentUrl = (String)basicJsonParser.parseMap(response.getBody()).get("payment_url");
 
+				System.out.println("Redirecting user to allow link");
 				return new ResponseEntity<String>(paymentUrl, HttpStatus.OK);
 
 			}catch (Exception ex) {
@@ -159,14 +181,20 @@ public class TransactionController {
 
 		// BANK
 
+		System.out.println("Getiing bank url from merchant with id " + merchantService
+			.findByMerchantId(transaction.getMerchantId()).getMerchantId());
 		String bankUrl = merchantService
 				.findByMerchantId(transaction.getMerchantId())
 				.getBankUrl();
 
 		if(bankUrl == null) {
+			System.out.println("Merchant with id " + merchantService
+				.findByMerchantId(transaction.getMerchantId()).getMerchantId() + " doesn't support credit card payments");
 			return new ResponseEntity<>("Current mercant doesn't " +
 				"support bank payments", HttpStatus.BAD_REQUEST);
 		}
+
+		System.out.println("Bank url successfully obtained: " + bankUrl);
 		URI response = restClientSelfSigned.postForLocation(
 				bankUrl + "/api/transactions",
 				transaction);
@@ -176,6 +204,7 @@ public class TransactionController {
 		headers.add("Location",
 			paymentUrl);
 //		return new ResponseEntity<>(headers, HttpStatus.FOUND);
+		System.out.println("Redirecting to credit card payment url");
 		return new ResponseEntity<>(paymentUrl, HttpStatus.OK);
 	}
 

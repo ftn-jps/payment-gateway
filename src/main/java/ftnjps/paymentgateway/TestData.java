@@ -71,9 +71,9 @@ public class TestData {
 
 		Subscription s1 = new Subscription(
 			9.99,
-			"test",
-			"http://localhost:4201/subscription/success",
-			"http://localhost:4201/subscription/failure"
+			"1111-1111",
+			"http://localhost:42001/subscription/success",
+			"http://localhost:42001/subscription/failure"
 		);
 		s1.setToken("13");
 		subscriptionService.add(s1);

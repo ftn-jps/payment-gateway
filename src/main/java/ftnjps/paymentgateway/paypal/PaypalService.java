@@ -2,6 +2,7 @@ package ftnjps.paymentgateway.paypal;
 
 import com.jayway.jsonpath.JsonPath;
 import ftnjps.paymentgateway.merchant.Merchant;
+import ftnjps.paymentgateway.subscription.Subscription;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPatch;
@@ -53,17 +54,21 @@ public class PaypalService {
         }
     }
 
-    public static String createPlan(String accessToken, double amount){
+    public static String createPlan(String accessToken, Subscription s){
         final String url = "https://api.sandbox.paypal.com/v1/payments/billing-plans";
         final String payload = "{\"name\":\"Magazine subscription plan\",\"description\":\"A plan that is defined for" +
             " billing user for accessing magazine\",\"type\":\"fixed\",\"payment_definitions\":[{\"name\":\"Regular " +
             "payment definition\",\"type\":\"REGULAR\",\"frequency\":\"MONTH\",\"frequency_interval\":\"1\",\"amount\":{\"value\":" +
-            amount +
+            s.getAmount() +
             "," +
             "\"currency\":\"USD\"},\"cycles\":\"24\"}]," +
             "\"merchant_preferences\":{\"setup_fee\":{\"value\":\"0\",\"currency\":\"USD\"}," +
-            "\"return_url\":\"https://localhost:4201/subscription/success\"," +
-            "\"cancel_url\":" + "\"https://localhost:4201/subscription/failure\"," +
+            "\"return_url\":\"https://localhost:4201/subscription/success/" +
+            s.getToken() +
+            "\"," +
+            "\"cancel_url\":" + "\"https://localhost:4201/subscription/failure/" +
+            s.getToken() +
+            "\"," +
             "\"auto_bill_amount\":\"YES\"," +
             "\"initial_fail_amount_action\":\"CONTINUE\",\"max_fail_attempts\":\"0\"}}";
 

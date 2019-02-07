@@ -20,17 +20,19 @@ public class MerchantController {
     public ResponseEntity<?> addMerchant(@RequestBody final Merchant merchant){
         System.out.println("Checking if merchant with id " + merchant.getMerchantId() + "exists...");
         Merchant existing = merchantService.findByMerchantId(merchant.getMerchantId());
-        System.out.println("Merchant with id " + merchant.getMerchantId() + "doesn't exist. New merchant can be added");
+
 
         if(existing != null) {
+            System.out.println("Merchant with id " + merchant.getMerchantId() + " already exists.");
             return new ResponseEntity<>(
                 "Merchant with id " + merchant.getMerchantId() + " already exists",
                 HttpStatus.BAD_REQUEST
             );
         }
 
+        System.out.println("Merchant with id " + merchant.getMerchantId() + "doesn't exist. New merchant can be added.");
         merchantService.add(merchant);
-
+        System.out.println("Merchant dwith i " + merchant.getMerchantId() + " is successfully added");
         return new ResponseEntity<>(merchant,HttpStatus.CREATED);
     }
 }

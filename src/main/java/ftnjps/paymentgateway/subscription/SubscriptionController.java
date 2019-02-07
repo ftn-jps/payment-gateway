@@ -38,7 +38,12 @@ public class SubscriptionController {
 
     @PostMapping
     public ResponseEntity<HttpHeaders> addSubscription(@RequestBody @Valid final Subscription subscription){
+        System.out.println("Adding new subscription");
+        System.out.println("Subscription details: ");
+        System.out.println("\tAmount: "+ subscription.getAmount());
+        System.out.println("\tMerchant: "+ subscription.getMerchantId());
         Subscription s = subscriptionService.add(subscription);
+        System.out.println("Generating payment-gateway frontend url for subscribtion");
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location",
             "https://localhost:4201" + "/subscription/#/" + s.getToken());
@@ -47,34 +52,52 @@ public class SubscriptionController {
 
     @GetMapping("/{token}")
     public ResponseEntity<Subscription> getSubscriptionById(@PathVariable final String token){
+        System.out.println("Getting subscription with token " + token);
         return new ResponseEntity<Subscription>(subscriptionService.findByToken(token), HttpStatus.OK);
+    }
+
+    @GetMapping("/getSubscription/{token}")
+    public ResponseEntity<?> getSubscriptionByToken(
+        @PathVariable String token
+    ) {
+        System.out.println("Getting subscription with token " + token);
+        return new ResponseEntity<>(subscriptionService.findByToken(token), HttpStatus.OK);
     }
 
     @GetMapping(value = "/subscribe/{token}", produces = "application/json")
     public ResponseEntity<?> subscribe(@PathVariable final String token){
+        System.out.println("Getting subscription with token: " + token);
         Subscription s = subscriptionService.findByToken(token);
+        System.out.println("Subscription with token: " + token + " found!");
+        System.out.println("Getting paypal access token for merchant " +
+            merchantService.findByMerchantId(s.getMerchantId()).getMerchantId());
         final String accessToken = PaypalService.getPaypalAccessToken(
             merchantService.findByMerchantId(s.getMerchantId())
         );
-
+        System.out.println("Paypal access token successfully obtained");
         //kreiras plan
-        final String createPlanResponse = PaypalService.createPlan(accessToken, s.getAmount() );
+        System.out.println("Creating billing plan for subscription " + s.getToken());
+        final String createPlanResponse = PaypalService.createPlan(accessToken, s);
+        System.out.println("Billing plan for subscription " + s.getToken() + " successfully added");
         String planUrl = JsonPath.read(createPlanResponse, "$.links[0].href");
         String planId =   JsonPath.read(createPlanResponse, "$.id");
 
         //aktiviras plan
+        System.out.println("Activating billing plan for subscription " + s.getToken());
         final int activatePlanResponse = PaypalService.activatePlan(accessToken,planId);
+
         if(activatePlanResponse != 200) {
+            System.out.println("Billing plan for subscription " + s.getToken() + " was not activated!");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
+        System.out.println("Billing plan for subscription " + s.getToken() + " successfully activated");
         //napravis agreement
         String startDate = (new Date()).toInstant().plus(Duration.ofMinutes(2)).toString();
 
+        System.out.println("Creating billing  agreement for subscription " + s.getToken());
         final String createAgreement = PaypalService.createAgreement(accessToken,startDate, planId);
-        System.out.println(createAgreement);
         String approvalUrl = JsonPath.read(createAgreement, "$.links[0].href");
-        System.out.println(approvalUrl);
+        System.out.println("Billing agreement for subscription " + s.getToken() + " successfully created");
 
         String encodedToken =  new String(Base64.getEncoder().encode(accessToken.getBytes()));
         String jsonString = "{ " +
