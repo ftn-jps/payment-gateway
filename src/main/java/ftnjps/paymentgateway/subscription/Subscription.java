@@ -20,16 +20,12 @@ public class Subscription {
     @Positive
     private double amount;
 
-
-
     @Pattern(regexp = "\\w{1,30}")
     @NotBlank
     private String token = UUID.randomUUID().toString();
     private String merchantId;
     private String successUrl;
     private String failUrl;
-    private String subscriptionPlanId;
-    private String subscriptionAgreementId;
 
     public Subscription(){}
 
@@ -77,21 +73,6 @@ public class Subscription {
         this.failUrl = failUrl;
     }
 
-    public String getSubscriptionPlanId() {
-        return subscriptionPlanId;
-    }
-
-    public void setSubscriptionPlanId(String subscriptionPlanId) {
-        this.subscriptionPlanId = subscriptionPlanId;
-    }
-
-    public String getSubscriptionAgreementId() {
-        return subscriptionAgreementId;
-    }
-
-    public void setSubscriptionAgreementId(String subscriptionAgreementId) {
-        this.subscriptionAgreementId = subscriptionAgreementId;
-    }
     public String getToken() {
         return token;
     }

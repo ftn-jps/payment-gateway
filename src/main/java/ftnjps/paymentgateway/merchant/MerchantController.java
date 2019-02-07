@@ -18,7 +18,10 @@ public class MerchantController {
 
     @PostMapping("/add")
     public ResponseEntity<?> addMerchant(@RequestBody final Merchant merchant){
+        System.out.println("Checking if merchant with id " + merchant.getMerchantId() + "exists...");
         Merchant existing = merchantService.findByMerchantId(merchant.getMerchantId());
+        System.out.println("Merchant with id " + merchant.getMerchantId() + "doesn't exist. New merchant can be added");
+
         if(existing != null) {
             return new ResponseEntity<>(
                 "Merchant with id " + merchant.getMerchantId() + " already exists",

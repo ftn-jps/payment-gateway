@@ -63,7 +63,7 @@ public class TestData {
 				"1111-1111",
 				null,
 				19,
-				"WORKING",
+				"http://isitfridayyet.net/",
 				"SOMETHING NOT WORKING",
 				"NOTHING IS WORKING");
 		t1.setToken("111");

@@ -60,6 +60,14 @@ public class TransactionController {
 		return new ResponseEntity<>(headers, HttpStatus.FOUND);
 	}
 
+	@GetMapping("/getTransaction/{token}")
+	public ResponseEntity<?> getTransactionByToken(
+		@PathVariable String token
+	) {
+		return new ResponseEntity<>(transactionService.findByToken(token), HttpStatus.OK);
+	}
+
+
 	@GetMapping("/{token}/type/{paymentType}")
 	public ResponseEntity<?> forwardTransaction(
 			@PathVariable String token,
@@ -84,8 +92,9 @@ public class TransactionController {
 				final String url = "https://api.sandbox.paypal.com/v1/payments/payment";
 				final String payload =
 					"{\"intent\": \"sale\",\"redirect_urls\": {\"return_url\": " +
-					"\"https://localhost:4201/paypal/success\"," +
-					"\"cancel_url\": \"https://localhost:4201/paypal/failure\"},\"payer\":" +
+					"\"https://localhost:4201/paypal/success/" + transaction.getToken() + "\"," +
+					"\"cancel_url\": \"https://localhost:4201/paypal/failure/" + transaction.getToken() +  "\"}," +
+					"\"payer\":" +
 					" {\"payment_method\": \"paypal\"},\"transactions\": " +
 					"[{\"amount\": {\"total\": \"" +
 					String.valueOf(transaction.getAmount()) +
