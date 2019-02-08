@@ -1,12 +1,15 @@
 package ftnjps.paymentgateway.subscription;
 
+import java.util.UUID;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Positive;
-import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 @Entity
 public class Subscription {
@@ -15,13 +18,14 @@ public class Subscription {
 
     @Id
     @GeneratedValue
+    @JsonProperty(access = Access.READ_ONLY)
     private Long id;
 
     @Positive
     private double amount;
 
-    @Pattern(regexp = "\\w{1,30}")
     @NotBlank
+    @JsonProperty(access = Access.READ_ONLY)
     private String token = UUID.randomUUID().toString();
     private String merchantId;
     private String successUrl;
