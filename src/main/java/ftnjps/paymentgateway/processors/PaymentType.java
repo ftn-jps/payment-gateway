@@ -1,4 +1,4 @@
-package ftnjps.paymentgateway.transaction;
+package ftnjps.paymentgateway.processors;
 
 public enum PaymentType {
 
