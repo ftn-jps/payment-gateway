@@ -4,9 +4,11 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.spi.mapper.JsonSmartMappingProvider;
 import ftnjps.paymentgateway.merchant.MerchantService;
 import ftnjps.paymentgateway.paypal.PaypalService;
+import ftnjps.paymentgateway.transaction.Transaction;
 import net.minidev.json.JSONObject;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -48,20 +50,6 @@ public class SubscriptionController {
         headers.add("Location",
             "https://localhost:4201" + "/subscription/#/" + s.getToken());
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
-    }
-
-    @GetMapping("/{token}")
-    public ResponseEntity<Subscription> getSubscriptionById(@PathVariable final String token){
-        System.out.println("Getting subscription with token " + token);
-        return new ResponseEntity<Subscription>(subscriptionService.findByToken(token), HttpStatus.OK);
-    }
-
-    @GetMapping("/getSubscription/{token}")
-    public ResponseEntity<?> getSubscriptionByToken(
-        @PathVariable String token
-    ) {
-        System.out.println("Getting subscription with token " + token);
-        return new ResponseEntity<>(subscriptionService.findByToken(token), HttpStatus.OK);
     }
 
     @GetMapping(value = "/subscribe/{token}", produces = "application/json")
@@ -109,6 +97,41 @@ public class SubscriptionController {
 
         //sutnes ga na confirmAgreement
         return new ResponseEntity<>(jsonString, HttpStatus.OK);
+    }
+
+    @GetMapping("/executeAgreement/{agreementToken}/{subscriptionToken}")
+    public ResponseEntity<?> executeAgreement(
+        @PathVariable String agreementToken,
+        @PathVariable String subscriptionToken
+    ) {
+        System.out.println(agreementToken);
+
+        Subscription s = subscriptionService.findByToken(subscriptionToken);
+
+        final String url = "https://api.sandbox.paypal.com/v1/payments/billing-agreements/" + agreementToken + "/agreement-execute";
+
+        final String accessToken = PaypalService.getPaypalAccessToken(merchantService.findByMerchantId(s.getMerchantId()));
+
+        HttpGet request = new HttpGet(url);
+        request.addHeader("Content-Type", "application/json");
+        request.addHeader("Authorization", "Bearer " + accessToken);
+
+        HttpClient httpClient = HttpClientBuilder.create().build();
+        try {
+            HttpResponse response = httpClient.execute(request);
+            String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            System.out.println(s.getSuccessUrl());
+            final String successUrl = " { \"url\" : \" " +
+                s.getSuccessUrl() +
+                "\" }";
+
+            return new ResponseEntity<>(successUrl, HttpStatus.OK);
+        } catch (Exception e) {
+            final String failUrl = " { \"url\" : \" " +
+                s.getFailUrl() +
+                "\" }";
+            return new ResponseEntity<>(failUrl, HttpStatus.OK);
+        }
     }
 
 

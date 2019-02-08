@@ -41,14 +41,6 @@ public class TransactionController {
 		return new ResponseEntity<>(headers, HttpStatus.FOUND);
 	}
 
-	@GetMapping("/getTransaction/{token}")
-	public ResponseEntity<?> getTransactionByToken(
-		@PathVariable String token
-	) {
-		return new ResponseEntity<>(transactionService.findByToken(token), HttpStatus.OK);
-	}
-
-
 	@GetMapping("/{token}/type/{paymentType}")
 	public ResponseEntity<?> forwardTransaction(
 			@PathVariable String token,
