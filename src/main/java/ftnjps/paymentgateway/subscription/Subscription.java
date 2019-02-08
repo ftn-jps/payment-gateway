@@ -26,6 +26,9 @@ public class Subscription {
     private String merchantId;
     private String successUrl;
     private String failUrl;
+    private String merchantPassword;
+    private int merchantOrderId;
+    private String errorUrl;
 
     public Subscription(){}
 
@@ -39,6 +42,30 @@ public class Subscription {
         this.merchantId = merchantId;
         this.successUrl = successUrl;
         this.failUrl = failUrl;
+    }
+
+    public String getMerchantPassword() {
+        return merchantPassword;
+    }
+
+    public void setMerchantPassword(String merchantPassword) {
+        this.merchantPassword = merchantPassword;
+    }
+
+    public int getMerchantOrderId() {
+        return merchantOrderId;
+    }
+
+    public void setMerchantOrderId(int merchantOrderId) {
+        this.merchantOrderId = merchantOrderId;
+    }
+
+    public String getErrorUrl() {
+        return errorUrl;
+    }
+
+    public void setErrorUrl(String errorUrl) {
+        this.errorUrl = errorUrl;
     }
 
     public double getAmount() {
